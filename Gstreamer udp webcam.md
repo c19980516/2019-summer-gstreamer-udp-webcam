@@ -12,7 +12,19 @@ gst-launch-1.0.exe -v udpsrc port=5001 ! application/x-rtp, encoding-name=JPEG,p
 
 
 
-### group 2:
+### Group 2:
+
+##### sender:
+
+gst-launch-1.0.exe autovideosrc ! videoconvert ! rtpvrawpay ! udpsink host=127.0.0.1 port=5000 -v
+
+##### receiver:
+
+gst-launch-1.0.exe udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)YCbCr-4:2:2, depth=(string)8, width=(string)640, height=(string)480, colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)2537320568, timestamp-offset=(uint)2046095812, seqnum-offset=(uint)31224, a-framerate=(string)30 ! rtpvrawdepay ! autovideosink
+
+
+
+### group 3:
 
 ##### sender:
 
@@ -26,9 +38,18 @@ gst-launch-1.0.exe -v udpsrc port=5600 ! application/x-rtp, media=(string)video,
 
 ## notice:
 
+ksvideosrc为windows下的命令，获取webcam，v4l2src device=/dev/video0 为linux下的命令。
+
 接收端的主要格式是udpsrc-caps-rtpxdepay-sink，其中caps是基于发送方的udpsink之后的详细信息 caps而来，几乎全部复制。linux下复制的时候因为命令行的原因要在 ''（ '' 前加 '' \ '' 。
 
-一般不会直接传送raw，而是会将其编码成h264等格式，于是乎会在rtpvrawpay前加上omxh264enc，将rtpvrawpay改为rtph264pay，接收端则为udpsrc-caps-rtph264depay-omxhdec-sink。//待验证
+一般不会直接传送raw，而是会将其编码成h264等格式，于是乎会在rtpvrawpay前加上omxh264enc，将rtpvrawpay改为rtph264pay，接收端则为udpsrc-caps-rtph264depay-omxhdec-sink。//待验证//验证失败
 
-主要是这个webcam太毒了，他只能支持2560 * 720和3840 * 1080，头大。
 
+
+
+
+### 信号测试
+
+18块砖，每块长度49cm，共距882cm时，丢包严重。
+
+零距离时基础延迟约三秒。
