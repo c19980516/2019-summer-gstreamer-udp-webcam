@@ -54,9 +54,9 @@ ksvideosrc为windows下的命令，获取webcam，v4l2src device=/dev/video0 为
 
 接收端的主要格式是udpsrc-caps-rtpxdepay-sink，其中caps是基于发送方的udpsink之后的详细信息 caps而来，几乎全部复制。linux下复制的时候因为命令行的原因要在 ''（ '' 前加 '' \ '' 。
 
-一般不会直接传送raw，而是会将其编码成h264等格式，于是乎会在rtpvrawpay前加上omxh264enc，将rtpvrawpay改为rtph264pay，接收端则为udpsrc-caps-rtph264depay-omxhdec-sink。//待验证//验证失败
+一般不会直接传送raw，而是会将其编码成h264等格式，如例4
 
-
+decodebin可以自动将各种编码格式解码，通过后接videoconvert，可转制成可播放视频。
 
 
 
