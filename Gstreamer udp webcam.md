@@ -36,6 +36,18 @@ gst-launch-1.0.exe -v udpsrc port=5600 ! application/x-rtp, media=(string)video,
 
 
 
+### Group4:（h264
+
+##### sender:
+
+gst-launch-1.0.exe -v ksvideosrc ! autovideoconvert ! x264enc tune=zerolatency ! rtph264pay ! udpsink host=127.0.0.1 port=5600
+
+##### receiver:
+
+gst-launch-1.0.exe -v udpsrc port=5600 ! application/x-rtp  ! rtph264depay ! avdec_h264 ! videoconvert ! autovideosink
+
+
+
 ## notice:
 
 ksvideosrc为windows下的命令，获取webcam，v4l2src device=/dev/video0 为linux下的命令。
