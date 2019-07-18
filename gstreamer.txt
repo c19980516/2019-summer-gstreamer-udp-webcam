@@ -20,3 +20,46 @@ work in test
 //gst-launch-1.0 -v -v4l2src device=/dev/video0 ! video/x-raw,framerate=30/1,width=2560,height=720 ! videoconvert ! rtpvrawpay ! udpsink host = 192.168.2.164 port=5600
 //gst-launch-1.0.exe -v udpsrc port=5600 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)YCbCr-4:2:2, depth=(string)8, width=(string)2560, height=(string)720, colorimetry=(string)BT709-2, payload=(int)96, ssrc=(uint)1729488896, timestamp-offset=(uint)378348761, seqnum-offset=(uint)14020, a-framerate=(string)30 ! rtpvrawdepay !   autovideosink -v
 work in test
+
+### 多线程
+
+##### 播放同时保存在本地avi文件中
+
+##### 本地测试
+
+gst-launch-1.0.exe autovideosrc num-buffers=50 ! videoconvert ! tee name=vsrc vsrc.! queue ! autovideosink vsrc.! queue ! avimux ! filesink location=test.avi -v
+
+##### sender:
+
+gst-launch-1.0.exe -v ksvideosrc ! autovideoconvert ! x264enc tune=zerolatency ! rtph264pay ! udpsink host=127.0.0.1 port=5600 -e
+
+gst-launch-1.0.exe -v v4l2src device=/dev/video0 ! autovideoconvert ! x264enc tune=zerolatency ! rtph264pay ! udpsink host=127.0.0.1 port=5600 -e
+
+##### receiver:
+
+gst-launch-1.0.exe -v udpsrc port=5600 ! application/x-rtp  ! rtph264depay ! avdec_h264 ! videoconvert ! tee name=vsrc vsrc.! queue ! autovideosink vsrc.! queue ! x264enc tune=zerolatency ! mp4mux ! filesink location=video.mp4 -e
+
+
+
+### 
+
+
+
+
+
+gst-launch-1.0.exe -v ksvideosrc ! video/x-raw,width=640,height=480 ! videoconvert ! x264enc tune=zerolatency ! tee name=vsrc vsrc.! queue ! rtph264pay ! udpsink host=183.173.81.133 port=5600 vsrc.! queue ! mp4mux ! filesink location=v.mp4 -e
+
+
+
+gst-launch-1.0.exe -v ksvideosrc ! autovideoconvert ! clockoverlay valignment=top halignment=left font-desc="Sans, 72" ! x264enc tune=zerolatency ! rtph264pay ! udpsink host=183.173.81.133 port=5600 buffer-size=2147483647 blocksize=max
+
+
+
+gst-launch-1.0 -v -e v4l2src device=/dev/video0 ! video/x-raw,framerate=30/1,width=2560,height=720 ! videoconvert ! timeoverlay valignment=top halignment=left font-desc="Sans, 72" ! x264enc tune=zerolatency ! tee name=vsrc vsrc.! queue ! rtph264pay ! udpsink host=192.168.2.164 port=5600 vsrc.! queue ! avimux ! filesink location=v0.avi
+
+
+gst-launch-1.0 -v -e v4l2src device=/dev/video0 ! video/x-raw,framerate=30/1,width=2560,height=720 ! videoconvert ! timeoverlay valignment=top halignment=left font-desc="Sans, 72" ! omxh264enc ! tee name=vsrc vsrc.! queue ! rtph264pay ! udpsink host=192.168.2.164 port=5600 vsrc.! queue ! avimux ! filesink location=v0.avi
+
+gst-launch-1.0 -v -e v4l2src device=/dev/video0 ! video/x-raw,framerate=30/1,width=2560,height=720 ! videoconvert ! timeoverlay valignment=top ! omxh264enc ! tee name=vsrc vsrc.! queue ! rtph264pay ! udpsink host=192.168.2.164 port=5600 vsrc.! queue ! avimux ! filesink location=v0.avi
+
+gst-launch-1.0 -v -e v4l2src device=/dev/video0 ! video/x-raw,framerate=30/1,width=2560,height=720 ! videoconvert ! timeoverlay valignment=top ! omxh264enc ! tee name=vsrc vsrc.! queue ! rtph264pay ! udpsink host=192.168.2.164 port=5600 vsrc.! queue ! avimux ! filesink location=v3.avi
