@@ -64,7 +64,11 @@ gst-launch-1.0.exe -v udpsrc port=5600 ! application/x-rtp  ! rtph264depay ! avd
 
 ##### sender:
 
-gst-launch-1.0 -v -e v4l2src device=/dev/video0 ! video/x-raw,framerate=30/1,width=2560,height=720 ! videoconvert ! timeoverlay valignment=top ! omxh264enc ! tee name=vsrc vsrc.! queue ! rtph264pay ! udpsink host=192.168.2.164 port=5600 vsrc.! queue ! avimux ! filesink location=v0.avi
+gst-launch-1.0 -v -e v4l2src device=/dev/video0 ! videoconvert !  video/x-raw,framerate=30/1,width=2560,height=720 ! timeoverlay valignment=top ! omxh264enc ! tee name=vsrc vsrc.! queue ! rtph264pay ! udpsink host=192.168.2.164 port=5600 vsrc.! queue ! avimux ! filesink location=v0.avi
+
+###### if needed:
+
+gst-launch-1.0 -v -e v4l2src device=/dev/video0 ! videoconvert !  video/x-raw,framerate=30/1,width=2560,height=720,**format=I420** ! timeoverlay valignment=top ! omxh264enc ! tee name=vsrc vsrc.! queue ! rtph264pay ! udpsink host=192.168.2.164 port=5600 vsrc.! queue ! avimux ! filesink location=v0.avi
 
 ##### receiver:
 
@@ -90,6 +94,10 @@ tee用于将数据分成相同的多份，queue用于新线程。
 
 
 
+QGroundControl在接收视频时不支持YUY2格式，而支持I420格式
+
+
+
 ### 信号测试
 
 18块砖，每块长度49cm，共距882cm时，丢包严重。
@@ -99,4 +107,8 @@ tee用于将数据分成相同的多份，queue用于新线程。
 但是使用了h264编码之后，基础延迟约半秒左右，相同距离不再产生强烈丢包，可接收距离约为原来两倍多
 
 
+
+### 连接无人机
+
+ssh -p 5222 nvidia@192.168.2.1
 
